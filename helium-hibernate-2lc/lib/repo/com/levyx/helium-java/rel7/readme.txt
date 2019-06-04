@@ -1,0 +1,1 @@
+Place helium-java.jar, renamed as helium-java-rel7.jar as per maven convention, here.

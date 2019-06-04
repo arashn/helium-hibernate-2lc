@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.serisys</groupId>
+	<artifactId>helium-hibernate-2lc</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>helium-hibernate-2lc</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<hibernate.core.version>5.3.1.Final</hibernate.core.version>
+		<helium.version>rel7</helium.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>local-provided</id>
+			<url>file://${basedir}/lib/repo</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<!-- Local dependency for helium-java - you can place it in lib/repo -->
+		<dependency>
+			<groupId>com.levyx</groupId>
+			<artifactId>helium-java</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<!-- Local dependency for helium-util - you can place it in lib/repo -->
+		<dependency>
+			<groupId>com.levyx</groupId>
+			<artifactId>helium-util</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+
+		<!-- (Serisys dev only) dependency on separate maven project holding helium jars 
+		Non-serisys users will want to comment this out
+		-->
+		<dependency>
+			<groupId>com.levyx</groupId>
+			<artifactId>LevyxHelium</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.core.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jcache</artifactId>
+			<version>${hibernate.core.version}</version>
+			<exclusions>
+				<exclusion>
+         	 		<groupId>javax.cache</groupId>
+					<artifactId>cache-api</artifactId>
+        		</exclusion>
+			</exclusions>
+		</dependency>
+			
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Compilation related settings -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.kuali.maven.plugins</groupId>
+				<artifactId>graph-maven-plugin</artifactId>
+				<version>1.2.3</version>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
