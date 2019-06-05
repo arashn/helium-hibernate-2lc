@@ -7,8 +7,8 @@ This project provides a JSR-107 javax.cache implementation using Levyx Helium to
 
 ## Required libraries
 
-1. You will need minimally the community edition of Levy Helium and a corresponding compatible version of the Helium Java driver.
-2. The Helium Java driver is comprised of two JAR files, helium-java.jar and helium-util.jar. You may add these to the project within the lib/repo local Maven repository structure renaming them as xxxx-rel7.jar 
+1. You will need minimally the [community edition of Levyx Helium](https://helium.levyx.com/) and a corresponding compatible version of the Helium Java driver.
+2. The Helium Java driver is comprised of two JAR files, helium-java.jar and helium-util.jar. You may add these to the project within the lib/repo local Maven repository structure renaming them as xxxx-rel7.jar. See the comments in the pom file for placement of these. 
 3. For Windows, the hejni.dll needs to be made available on the build path (by for example placing in the lib directory of the project).
 
 ---
