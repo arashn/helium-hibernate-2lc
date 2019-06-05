@@ -41,11 +41,11 @@
 		<!-- (Serisys dev only) dependency on separate maven project holding helium jars 
 		Non-serisys users will want to comment this out
 		-->
-		<dependency>
-			<groupId>com.levyx</groupId>
-			<artifactId>LevyxHelium</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.levyx</groupId> -->
+<!-- 			<artifactId>LevyxHelium</artifactId> -->
+<!-- 			<version>${helium.version}</version> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
