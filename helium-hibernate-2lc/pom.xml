@@ -96,6 +96,15 @@
 				<artifactId>graph-maven-plugin</artifactId>
 				<version>1.2.3</version>
 			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-surefire-plugin</artifactId>
+			    <configuration>
+			        <forkMode>once</forkMode>
+			        <workingDirectory>target</workingDirectory>
+			        <argLine>-Djava.library.path=${basedir}/lib -Dhelium.device_url=he://./C:/Levyx/Helium/HE_BLOCK.DAT</argLine>
+			    </configuration>
+			</plugin>			
 		</plugins>
 	</build>
 
