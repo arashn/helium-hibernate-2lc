@@ -57,8 +57,10 @@ import javax.management.ObjectName;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.util.Pool;
 import com.serisys.helium.jcache.mx.CacheMXBeanImpl;
 import com.serisys.helium.jcache.mx.CacheMXStatsBeanImpl;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 public class HeCacheManager implements CacheManager {
 	
@@ -105,16 +107,24 @@ public class HeCacheManager implements CacheManager {
 	};
 	private static final DataAdaptor<byte[], Serializable> SERIALIZABLE_DOMAIN_DATA_ADAPTOR = new DataAdaptor<byte[], Serializable>() {
 
-		private Kryo kryo;
+		private Pool<Kryo> kryoPool;
 
 		{
-			kryo = new Kryo();
-			kryo.setRegistrationRequired(false);
+			kryoPool = new Pool<Kryo>(true, false, 8) {
+				protected Kryo create () {
+					Kryo kryo = new Kryo();
+					// Configure the Kryo instance.
+					kryo.setRegistrationRequired(false);
+					kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+					return kryo;
+				}
+			};
 		}
 
 		@Override
 		public byte[] convertToCached(Serializable domainObject) {
 			byte[] cacheEntry = null;
+			Kryo kryo = kryoPool.obtain();
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream(1024);
 			Output output;
 			try {
@@ -126,15 +136,19 @@ public class HeCacheManager implements CacheManager {
 				output.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				kryoPool.free(kryo);
 			}
 			return cacheEntry;
 		}
 
 		@Override
 		public Serializable convertToDomain(byte[] cacheEntry) {
+			Kryo kryo = kryoPool.obtain();
 			Input input = new Input(new ByteArrayInputStream(cacheEntry));
 			Serializable domainObject = (Serializable) kryo.readClassAndObject(input);
 			input.close();
+			kryoPool.free(kryo);
 			return domainObject;
 		}
 	};
