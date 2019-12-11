@@ -54,6 +54,9 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.serisys.helium.jcache.mx.CacheMXBeanImpl;
 import com.serisys.helium.jcache.mx.CacheMXStatsBeanImpl;
 
@@ -102,18 +105,25 @@ public class HeCacheManager implements CacheManager {
 	};
 	private static final DataAdaptor<byte[], Serializable> SERIALIZABLE_DOMAIN_DATA_ADAPTOR = new DataAdaptor<byte[], Serializable>() {
 
+		private Kryo kryo;
+
+		{
+			kryo = new Kryo();
+			kryo.setRegistrationRequired(false);
+		}
+
 		@Override
 		public byte[] convertToCached(Serializable domainObject) {
 			byte[] cacheEntry = null;
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream(1024);
-			ObjectOutputStream str;
+			Output output;
 			try {
-				str = new ObjectOutputStream(bytes);
-				str.writeObject(domainObject);
-				str.flush();
+				output = new Output(bytes);
+				kryo.writeClassAndObject(output, domainObject);
+				output.flush();
 				bytes.flush();
 				cacheEntry = bytes.toByteArray();
-				str.close();
+				output.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -122,15 +132,9 @@ public class HeCacheManager implements CacheManager {
 
 		@Override
 		public Serializable convertToDomain(byte[] cacheEntry) {
-			Serializable domainObject = null;
-			ObjectInputStream str;
-			try {
-				str = new ObjectInputStream(new ByteArrayInputStream(cacheEntry));
-				domainObject = (Serializable) str.readObject();
-				str.close();
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+			Input input = new Input(new ByteArrayInputStream(cacheEntry));
+			Serializable domainObject = (Serializable) kryo.readClassAndObject(input);
+			input.close();
 			return domainObject;
 		}
 	};
