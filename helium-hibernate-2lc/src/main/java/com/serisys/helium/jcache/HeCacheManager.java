@@ -108,15 +108,31 @@ public class HeCacheManager implements CacheManager {
 	private static final DataAdaptor<byte[], Serializable> SERIALIZABLE_DOMAIN_DATA_ADAPTOR = new DataAdaptor<byte[], Serializable>() {
 
 		private Pool<Kryo> kryoPool;
+		private Pool<Input> inputPool;
+		private Pool<Output> outputPool;
 
 		{
-			kryoPool = new Pool<Kryo>(true, false, 8) {
+			kryoPool = new Pool<Kryo>(true, false, 16) {
 				protected Kryo create () {
 					Kryo kryo = new Kryo();
 					// Configure the Kryo instance.
 					kryo.setRegistrationRequired(false);
 					kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 					return kryo;
+				}
+			};
+
+			inputPool = new Pool<Input>(true, false, 16) {
+				@Override
+				protected Input create() {
+					return new Input();
+				}
+			};
+
+			outputPool = new Pool<Output>(true, false, 16) {
+				@Override
+				protected Output create() {
+					return new Output();
 				}
 			};
 		}
@@ -126,9 +142,9 @@ public class HeCacheManager implements CacheManager {
 			byte[] cacheEntry = null;
 			Kryo kryo = kryoPool.obtain();
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream(1024);
-			Output output;
+			Output output = outputPool.obtain();
 			try {
-				output = new Output(bytes);
+				output.setOutputStream(bytes);
 				kryo.writeClassAndObject(output, domainObject);
 				output.flush();
 				bytes.flush();
@@ -137,6 +153,7 @@ public class HeCacheManager implements CacheManager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
+				outputPool.free(output);
 				kryoPool.free(kryo);
 			}
 			return cacheEntry;
@@ -145,9 +162,11 @@ public class HeCacheManager implements CacheManager {
 		@Override
 		public Serializable convertToDomain(byte[] cacheEntry) {
 			Kryo kryo = kryoPool.obtain();
-			Input input = new Input(new ByteArrayInputStream(cacheEntry));
+			Input input = inputPool.obtain();
+			input.setInputStream(new ByteArrayInputStream(cacheEntry));
 			Serializable domainObject = (Serializable) kryo.readClassAndObject(input);
 			input.close();
+			inputPool.free(input);
 			kryoPool.free(kryo);
 			return domainObject;
 		}
