@@ -125,14 +125,14 @@ public class HeCacheManager implements CacheManager {
 			inputPool = new Pool<Input>(true, false, 16) {
 				@Override
 				protected Input create() {
-					return new Input();
+					return new Input(4096);
 				}
 			};
 
 			outputPool = new Pool<Output>(true, false, 16) {
 				@Override
 				protected Output create() {
-					return new Output();
+					return new Output(4096, 4096);
 				}
 			};
 		}
